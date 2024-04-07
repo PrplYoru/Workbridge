@@ -13,6 +13,12 @@ pub struct UserInfo {
     tipo_utente: String,
 }
 
+#[derive(Deserialize)]
+pub struct LoginInfo {
+    email: String,
+    password: String,
+}
+
 async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Responder {
     let mut conn = pool.get_conn();
     if conn.is_err() {
@@ -57,6 +63,36 @@ async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Resp
             eprintln!("Error executing query: {:?}", e);
             HttpResponse::InternalServerError().body("Error executing query")
         }
+    }
+}
+
+async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Responder {
+    let mut conn = pool.get_conn();
+    if conn.is_err() {
+        eprintln!("Error getting connection: {:?}", conn.err());
+        return HttpResponse::InternalServerError().body("Error getting connection");
+    }
+    let mut conn = conn.unwrap();
+
+    let select_stmt = r"SELECT password FROM users WHERE email = :email";
+    let stored_password: Option<String> = conn
+        .exec_first(
+            select_stmt,
+            params! {
+                "email" => &info.email,
+            },
+        )
+        .unwrap();
+
+    match stored_password {
+        Some(stored_password) => {
+            if bcrypt::verify(&info.password, &stored_password).unwrap() {
+                HttpResponse::Ok().body("User logged in successfully")
+            } else {
+                HttpResponse::BadRequest().body("Invalid password")
+            }
+        },
+        None => HttpResponse::BadRequest().body("Email not found"),
     }
 }
 
@@ -107,7 +143,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(Data::new(pool.clone()))
-            .route("/register", web::post().to(register_user))
+            .route("/api/register", web::post().to(register_user))
+            .route("/api/login", web::post().to(login_user))
             .service(Files::new("/", "vue/diplomati/dist").index_file("index.html"))
             .default_service(
                 web::route().to(|| async {

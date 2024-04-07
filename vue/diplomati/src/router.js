@@ -3,8 +3,8 @@ import UserRegistration from './components/UserRegistration.vue'
 import UserLogin from './components/UserLogin.vue'
 
 const routes = [
-    { path: '/reg', component: UserRegistration },
-    { path: '/log', component: UserLogin },
+    { path: '/register', component: UserRegistration },
+    { path: '/login', component: UserLogin },
 ]
 
 const router = createRouter({

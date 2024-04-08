@@ -50,15 +50,13 @@ export default {
         });
 
         if (response.status === 200) {
-          // The user was registered successfully
-          // Redirect the user to the login page
+          this.$router.push('/login');
+          alert(response.data);
         } else {
-          // There was an error
-          // Show an error message
+          alert(response.data)
         }
       } catch (error) {
-        // There was an error sending the request
-        // Show an error message
+        alert(error);
       }
     },
     login() {

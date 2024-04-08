@@ -22,8 +22,7 @@ pub struct LoginInfo {
 async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Responder {
     let mut conn = pool.get_conn();
     if conn.is_err() {
-        eprintln!("Error getting connection: {:?}", conn.err());
-        return HttpResponse::InternalServerError().body("Error getting connection");
+        return HttpResponse::InternalServerError().body("Error di connessione al database");
     }
     let mut conn = conn.unwrap();
 
@@ -38,13 +37,12 @@ async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Resp
         .unwrap();
 
     if existing_email.is_some() {
-        return HttpResponse::BadRequest().body("Email already exists");
+        return HttpResponse::BadRequest().body("Email già esistente");
     }
 
     let hashed_password = bcrypt::hash(&info.password, bcrypt::DEFAULT_COST);
     if hashed_password.is_err() {
-        eprintln!("Error hashing password: {:?}", hashed_password.err());
-        return HttpResponse::InternalServerError().body("Error hashing password");
+        return HttpResponse::InternalServerError().body("Errore nell'hashing della password");
     }
     let hashed_password = hashed_password.unwrap();
 
@@ -58,10 +56,9 @@ async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Resp
     );
 
     match result {
-        Ok(_) => HttpResponse::Ok().body("User registered successfully"),
+        Ok(_) => HttpResponse::Ok().body("Utente registrato con successo"),
         Err(e) => {
-            eprintln!("Error executing query: {:?}", e);
-            HttpResponse::InternalServerError().body("Error executing query")
+            HttpResponse::InternalServerError().body("Errore nell'esecuzione della query")
         }
     }
 }
@@ -69,8 +66,7 @@ async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Resp
 async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Responder {
     let mut conn = pool.get_conn();
     if conn.is_err() {
-        eprintln!("Error getting connection: {:?}", conn.err());
-        return HttpResponse::InternalServerError().body("Error getting connection");
+        return HttpResponse::InternalServerError().body("Errore di connessione al database");
     }
     let mut conn = conn.unwrap();
 
@@ -87,12 +83,12 @@ async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Respon
     match stored_password {
         Some(stored_password) => {
             if bcrypt::verify(&info.password, &stored_password).unwrap() {
-                HttpResponse::Ok().body("User logged in successfully")
+                HttpResponse::Ok().body("Login effettuato con successo")
             } else {
-                HttpResponse::BadRequest().body("Invalid password")
+                HttpResponse::BadRequest().body("Password errata")
             }
         },
-        None => HttpResponse::BadRequest().body("Email not found"),
+        None => HttpResponse::BadRequest().body("Utente non trovato"),
     }
 }
 

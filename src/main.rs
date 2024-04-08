@@ -120,7 +120,7 @@ async fn main() -> std::io::Result<()> {
     };
 
     let tables = vec![
-        "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(50), tipo_utente VARCHAR(1))",
+        "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60), tipo_utente VARCHAR(1))",
         "CREATE TABLE IF NOT EXISTS diplomati (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY (id_user) REFERENCES users(id), specializzazione VARCHAR(50), indirizzo_studio VARCHAR(50), voto_maturita INT, certificazioni_acquisite VARCHAR(50), esperienze_lavorative VARCHAR(50))",
         "CREATE TABLE IF NOT EXISTS aziende (id INT AUTO_INCREMENT PRIMARY KEY, denominazione_azienda VARCHAR(50), numero_REA INT, codice_fiscale VARCHAR(16), forma_giuridica VARCHAR(50), descrizione_attivita VARCHAR(50), categoria VARCHAR(50), indirizzo VARCHAR(50), contatti VARCHAR(50))",
     ];

@@ -1,101 +1,19 @@
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
 use mysql::prelude::Queryable;
-use mysql::{params, Pool};
-use mysql::serde_json::json;
-use serde::Deserialize;
+use mysql::{Pool};
 
-#[derive(Deserialize)]
-pub struct UserInfo {
-    email: String,
-    password: String,
-    tipo_utente: String,
+mod handlers {
+    pub mod auth;
 }
 
-#[derive(Deserialize)]
-pub struct LoginInfo {
-    email: String,
-    password: String,
+mod models {
+    pub mod auth;
 }
 
-async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Responder {
-    let mut conn = pool.get_conn();
-    if conn.is_err() {
-        return HttpResponse::InternalServerError().body("Error di connessione al database");
-    }
-    let mut conn = conn.unwrap();
-
-    let select_stmt = r"SELECT email FROM users WHERE email = :email";
-    let existing_email: Option<String> = conn
-        .exec_first(
-            select_stmt,
-            params! {
-                "email" => &info.email,
-            },
-        )
-        .unwrap();
-
-    if existing_email.is_some() {
-        return HttpResponse::BadRequest().body("Email già esistente");
-    }
-
-    let hashed_password = bcrypt::hash(&info.password, bcrypt::DEFAULT_COST);
-    if hashed_password.is_err() {
-        return HttpResponse::InternalServerError().body("Errore nell'hashing della password");
-    }
-    let hashed_password = hashed_password.unwrap();
-
-    let result = conn.exec_drop(
-        r"INSERT INTO users (email, password, tipo_utente) VALUES (:email, :password, :tipo_utente)",
-        params! {
-            "email" => &info.email,
-            "password" => hashed_password,
-            "tipo_utente" => &info.tipo_utente
-        },
-    );
-
-    match result {
-        Ok(_) => HttpResponse::Ok().body("Utente registrato con successo"),
-        Err(e) => {
-            HttpResponse::InternalServerError().body("Errore nell'esecuzione della query")
-        }
-    }
-}
-
-async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Responder {
-    let mut conn = pool.get_conn();
-    if conn.is_err() {
-        return HttpResponse::InternalServerError().json(json!({"message": "Errore di connessione al database"}));
-    }
-    let mut conn = conn.unwrap();
-
-    let select_stmt = r"SELECT password, verified FROM users WHERE email = :email";
-    let result: Option<(String, bool)> = conn
-        .exec_first(
-            select_stmt,
-            params! {
-                "email" => &info.email,
-            },
-        )
-        .unwrap();
-
-    match result {
-        Some((stored_password, verified)) => {
-            if bcrypt::verify(&info.password, &stored_password).unwrap() {
-                if verified {
-                    HttpResponse::Ok().json(json!({"message": "Login effettuato con successo", "verified": true}))
-                } else {
-                    HttpResponse::Ok().json(json!({"message": "Login effettuato con successo", "verified": false}))
-                }
-            } else {
-                HttpResponse::BadRequest().json(json!({"message": "Password errata"}))
-            }
-        },
-        None => HttpResponse::BadRequest().json(json!({"message": "Utente non trovato"})),
-    }
-}
+use handlers::auth::{login_user, register_user};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

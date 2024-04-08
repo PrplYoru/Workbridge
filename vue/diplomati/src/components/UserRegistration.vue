@@ -1,4 +1,7 @@
 <template>
+  <v-card-title>
+    <h2>Registrazione</h2>
+  </v-card-title>
   <v-form @submit.prevent="register" class="form">
     <v-text-field
         label="Email"

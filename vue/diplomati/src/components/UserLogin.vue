@@ -1,4 +1,7 @@
 <template>
+  <v-card-title>
+    <h2>Login</h2>
+  </v-card-title>
   <v-form @submit.prevent="login" class="form">
     <v-text-field
         label="Email"
@@ -14,8 +17,8 @@
         required
         class="form-field"
     ></v-text-field>
-    <v-btn type="submit" color="primary" class="mr-4 form-button">Login</v-btn>
-    <v-btn type="button" color="secondary" class="form-button" @click="register">Registrati</v-btn>
+    <v-btn type="button" color="primary" class="mr-4 form-button" @click="register">Registrati</v-btn>
+    <v-btn type="submit" color="secondary" class="form-button">Login</v-btn>
   </v-form>
 </template>
 

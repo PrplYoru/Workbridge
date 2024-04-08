@@ -41,12 +41,12 @@ export default {
         });
 
         if (response.status === 200) {
-          alert(response.data)
+          alert(response.data.message)
         } else {
-          alert(response.data)
+          alert(response.data.message)
         }
       } catch (error) {
-        alert(error)
+        alert(error.response.data.message)
       }
     },
     register() {

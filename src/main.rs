@@ -4,6 +4,7 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use mysql::prelude::Queryable;
 use mysql::{params, Pool};
+use mysql::serde_json::json;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -66,12 +67,12 @@ async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl Resp
 async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Responder {
     let mut conn = pool.get_conn();
     if conn.is_err() {
-        return HttpResponse::InternalServerError().body("Errore di connessione al database");
+        return HttpResponse::InternalServerError().json(json!({"message": "Errore di connessione al database"}));
     }
     let mut conn = conn.unwrap();
 
-    let select_stmt = r"SELECT password FROM users WHERE email = :email";
-    let stored_password: Option<String> = conn
+    let select_stmt = r"SELECT password, verified FROM users WHERE email = :email";
+    let result: Option<(String, bool)> = conn
         .exec_first(
             select_stmt,
             params! {
@@ -80,15 +81,19 @@ async fn login_user(info: web::Json<LoginInfo>, pool: Data<Pool>) -> impl Respon
         )
         .unwrap();
 
-    match stored_password {
-        Some(stored_password) => {
+    match result {
+        Some((stored_password, verified)) => {
             if bcrypt::verify(&info.password, &stored_password).unwrap() {
-                HttpResponse::Ok().body("Login effettuato con successo")
+                if verified {
+                    HttpResponse::Ok().json(json!({"message": "Login effettuato con successo", "verified": true}))
+                } else {
+                    HttpResponse::Ok().json(json!({"message": "Login effettuato con successo", "verified": false}))
+                }
             } else {
-                HttpResponse::BadRequest().body("Password errata")
+                HttpResponse::BadRequest().json(json!({"message": "Password errata"}))
             }
         },
-        None => HttpResponse::BadRequest().body("Utente non trovato"),
+        None => HttpResponse::BadRequest().json(json!({"message": "Utente non trovato"})),
     }
 }
 
@@ -116,7 +121,7 @@ async fn main() -> std::io::Result<()> {
     };
 
     let tables = vec![
-        "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60), tipo_utente VARCHAR(1))",
+        "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60), tipo_utente VARCHAR(1), verified BOOLEAN DEFAULT FALSE)",
         "CREATE TABLE IF NOT EXISTS diplomati (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY (id_user) REFERENCES users(id), specializzazione VARCHAR(50), indirizzo_studio VARCHAR(50), voto_maturita INT, certificazioni_acquisite VARCHAR(50), esperienze_lavorative VARCHAR(50))",
         "CREATE TABLE IF NOT EXISTS aziende (id INT AUTO_INCREMENT PRIMARY KEY, denominazione_azienda VARCHAR(50), numero_REA INT, codice_fiscale VARCHAR(16), forma_giuridica VARCHAR(50), descrizione_attivita VARCHAR(50), categoria VARCHAR(50), indirizzo VARCHAR(50), contatti VARCHAR(50))",
     ];

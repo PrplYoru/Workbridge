@@ -56,7 +56,7 @@ export default {
           alert(response.data)
         }
       } catch (error) {
-        alert(error);
+        alert(error.response.data);
       }
     },
     login() {

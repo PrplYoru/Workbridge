@@ -2,7 +2,7 @@ use actix_web::{web, HttpResponse, Responder};
 use actix_web::web::Data;
 use mysql::prelude::Queryable;
 use mysql::{params, Pool};
-use mysql::serde_json::{json, Map};
+use mysql::serde_json::json;
 use crate::models::auth::{UserInfo, LoginInfo, TokenInfo};
 use jsonwebtoken::{encode, Header, EncodingKey, Algorithm};
 use jsonwebtoken::errors::Result as JWTResult;

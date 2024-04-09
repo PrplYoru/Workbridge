@@ -41,7 +41,8 @@ export default {
         });
 
         if (response.status === 200) {
-          alert(response.data.message)
+          localStorage.setItem('token', response.data.token);
+          this.$router.push('/details');
         } else {
           alert(response.data.message)
         }

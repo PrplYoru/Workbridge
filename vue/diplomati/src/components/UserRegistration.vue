@@ -51,12 +51,12 @@ export default {
 
         if (response.status === 200) {
           this.$router.push('/login');
-          alert(response.data);
+          alert(response.data.message);
         } else {
-          alert(response.data)
+          alert(response.data.message)
         }
       } catch (error) {
-        alert(error.response.data);
+        alert(error.response.data.message);
       }
     },
     login() {

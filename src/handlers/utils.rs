@@ -22,18 +22,16 @@ pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<Str
             let user_type = &data.claims.user_type;
             match user_type.as_str() {
                 "D" => {
-                    let details: UserDetailsA = serde_json::from_value(details.into_inner()).unwrap();
+                    let details: UserDetailsD = serde_json::from_value(details.into_inner()).unwrap();
                     let result = conn.exec_drop(
-                        r"INSERT INTO aziende (denominazione_azienda, numero_REA, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, indirizzo, contatti) VALUES (:denominazione_azienda, :numero_REA, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :indirizzo, :contatti)",
+                        r"INSERT INTO diplomati (id_user, specializzazione, indirizzo_studio, voto_maturita, certificazioni_acquisite, esperienze_lavorative) VALUES (:id_user , :specializzazione, :indirizzo_studio, :voto_maturita, :certificazioni_acquisite, :esperienze_lavorative)",
                         params! {
-                            "denominazione_azienda" => &details.denominazione_azienda,
-                            "numero_REA" => &details.numero_REA,
-                            "codice_fiscale" => &details.codice_fiscale,
-                            "forma_giuridica" => &details.forma_giuridica,
-                            "descrizione_attivita" => &details.descrizione_attivita,
-                            "categoria" => &details.categoria,
-                            "indirizzo" => &details.indirizzo,
-                            "contatti" => &details.contatti
+                            "id_user" => data.claims.user_id,
+                            "specializzazione" => &details.specializzazione,
+                            "indirizzo_studio" => &details.indirizzo_studio,
+                            "voto_maturita" => &details.voto_maturita,
+                            "certificazioni_acquisite" => &details.certificazioni_acquisite,
+                            "esperienze_lavorative" => &details.esperienze_lavorative
                         },
                     );
                     match result {
@@ -55,10 +53,11 @@ pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<Str
                 "A" => {
                     let details: UserDetailsA = serde_json::from_value(details.into_inner()).unwrap();
                     let result = conn.exec_drop(
-                        r"INSERT INTO aziende (denominazione_azienda, numero_REA, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, indirizzo, contatti) VALUES (:denominazione_azienda, :numero_REA, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :indirizzo, :contatti)",
+                        r"INSERT INTO aziende (id_user, denominazione_azienda, numero_rea, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, indirizzo, contatti) VALUES (:id_user, :denominazione_azienda, :numero_rea, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :indirizzo, :contatti)",
                         params! {
+                            "id_user" => data.claims.user_id,
                             "denominazione_azienda" => &details.denominazione_azienda,
-                            "numero_REA" => &details.numero_REA,
+                            "numero_rea" => &details.numero_rea,
                             "codice_fiscale" => &details.codice_fiscale,
                             "forma_giuridica" => &details.forma_giuridica,
                             "descrizione_attivita" => &details.descrizione_attivita,
@@ -80,7 +79,7 @@ pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<Str
                                 Err(_) => HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
                             }
                         },
-                        Err(_) => HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+                        Err(e) => HttpResponse::InternalServerError().json(json!({"message": format!("Errore nell'esecuzione della query: {}", e.to_string())})),
                     }
                 },
                 _ => HttpResponse::BadRequest().json(json!({"message": "Tipo utente non valido"})),

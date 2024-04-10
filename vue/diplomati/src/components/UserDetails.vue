@@ -15,7 +15,7 @@
         <h2>Dettagli Azienda</h2>
       </v-card-title>
       <v-text-field label="Denominazione Azienda" v-model="details.denominazione_azienda" required></v-text-field>
-      <v-text-field label="Numero REA" v-model="details.numero_REA" required></v-text-field>
+      <v-text-field label="Numero REA" v-model="details.numero_rea" required></v-text-field>
       <v-text-field label="Codice Fiscale" v-model="details.codice_fiscale" required></v-text-field>
       <v-text-field label="Forma Giuridica" v-model="details.forma_giuridica" required></v-text-field>
       <v-text-field label="Descrizione Attività" v-model="details.descrizione_attivita" required></v-text-field>
@@ -43,7 +43,7 @@ export default {
         certificazioni_acquisite: '',
         esperienze_lavorative: '',
         denominazione_azienda: '',
-        numero_REA: '',
+        numero_rea: '',
         codice_fiscale: '',
         forma_giuridica: '',
         descrizione_attivita: '',

@@ -18,5 +18,5 @@ pub struct TokenInfo {
     pub user_id: i32,
     pub email: String,
     pub user_type: String,
-    pub exp: usize,
+    pub exp: u64,
 }

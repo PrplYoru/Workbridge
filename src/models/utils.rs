@@ -4,7 +4,7 @@ use serde::Deserialize;
 pub struct UserDetailsD {
     pub specializzazione: String,
     pub indirizzo_studio: String,
-    pub voto_maturita: i32,
+    pub voto_maturita: String,
     pub certificazioni_acquisite: String,
     pub esperienze_lavorative: String,
 }
@@ -12,7 +12,7 @@ pub struct UserDetailsD {
 #[derive(Deserialize)]
 pub struct UserDetailsA {
     pub denominazione_azienda: String,
-    pub numero_REA: i32,
+    pub numero_rea: String,
     pub codice_fiscale: String,
     pub forma_giuridica: String,
     pub descrizione_attivita: String,

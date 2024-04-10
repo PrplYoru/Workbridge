@@ -7,6 +7,20 @@ use crate::models::{utils::{UserDetailsD, UserDetailsA}, auth::TokenInfo};
 use jsonwebtoken::{decode, Validation, DecodingKey, Algorithm};
 use jsonwebtoken::errors::Result as JWTResult;
 
+pub async fn get_categories(pool: Data<Pool>) -> impl Responder {
+    let mut conn = match pool.get_conn() {
+        Ok(conn) => conn,
+        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore di connessione al database"})),
+    };
+
+    let result: Vec<(i32, String, String)> = match conn.query("SELECT * FROM categorie") {
+        Ok(result) => result,
+        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+    };
+
+    HttpResponse::Ok().json(result)
+}
+
 pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,

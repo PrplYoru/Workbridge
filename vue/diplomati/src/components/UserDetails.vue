@@ -19,7 +19,7 @@
       <v-text-field label="Codice Fiscale" v-model="details.codice_fiscale" required></v-text-field>
       <v-text-field label="Forma Giuridica" v-model="details.forma_giuridica" required></v-text-field>
       <v-text-field label="Descrizione Attività" v-model="details.descrizione_attivita" required></v-text-field>
-      <v-text-field label="Categoria" v-model="details.categoria" required></v-text-field>
+      <v-select label="Categoria" v-model="details.categoria" :items="categories" required></v-select>
       <v-text-field label="Indirizzo" v-model="details.indirizzo" required></v-text-field>
       <v-text-field label="Contatti" v-model="details.contatti" required></v-text-field>
     </template>
@@ -35,6 +35,7 @@ export default {
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token);
     return {
+      categories: [],
       user_type: decodedToken.user_type,
       details: {
         specializzazione: '',
@@ -52,6 +53,14 @@ export default {
         contatti: '',
       },
     };
+  },
+  async created() {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/categories');
+      this.categories = response.data.map(category => category[1]);
+    } catch (error) {
+      console.error(error);
+    }
   },
   methods: {
     async submitDetails() {

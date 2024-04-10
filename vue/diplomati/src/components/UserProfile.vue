@@ -7,7 +7,7 @@
     <v-row>
       <v-col cols="12" md="6">
         <v-card>
-          <v-card-title>Dettagli utente</v-card-title>
+          <v-card-title>Dettagli diplomato</v-card-title>
           <v-card-text>
             <v-text-field label="Specializzazione" v-model="details.specializzazione" required></v-text-field>
             <v-text-field label="Indirizzo studio" v-model="details.indirizzo_studio" required></v-text-field>

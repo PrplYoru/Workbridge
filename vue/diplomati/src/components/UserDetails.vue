@@ -67,9 +67,13 @@ export default {
       const token = localStorage.getItem('token');
       try {
         const response = await axios.post(`/api/details/${token}`, this.details);
-        console.log(response.data);
+        if (response.status === 200) {
+          this.$router.push('/profile');
+        } else {
+          alert(response.data.message)
+        }
       } catch (error) {
-        console.error(error);
+        alert(error.response.data.message)
       }
     },
   },

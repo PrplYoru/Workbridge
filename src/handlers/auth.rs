@@ -12,6 +12,7 @@ fn generate_token(user_id: i32, email: &str, user_type: &str) -> JWTResult<Strin
         user_id,
         email: email.to_string(),
         user_type: user_type.to_string(),
+        exp: 10000000000,
     };
 
     let secret = b"@vrs%|fumAjH_N|r}d/W(@/KD!/0F*&),d0$26_R-*gKb=PJF(d,j'wcT&we^[]";

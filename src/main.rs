@@ -4,16 +4,18 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use mysql::prelude::Queryable;
 use mysql::{Pool};
+use handlers::utils::submit_user_details;
+use handlers::auth::{login_user, register_user};
 
 mod handlers {
     pub mod auth;
+    pub mod utils;
 }
 
 mod models {
     pub mod auth;
+    pub mod utils;
 }
-
-use handlers::auth::{login_user, register_user};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -64,6 +66,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .route("/api/register", web::post().to(register_user))
             .route("/api/login", web::post().to(login_user))
+            .route("/api/details/{token}", web::post().to(submit_user_details))
             .service(Files::new("/", "vue/diplomati/dist").index_file("index.html"))
             .default_service(
                 web::route().to(|| async {

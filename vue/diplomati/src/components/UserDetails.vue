@@ -29,6 +29,7 @@
 
 <script>
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 export default {
   data() {
     const token = localStorage.getItem('token');
@@ -54,8 +55,13 @@ export default {
   },
   methods: {
     async submitDetails() {
-      // Submit the details to the server
-      // You can use axios.post() here
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.post(`/api/details/${token}`, this.details);
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };

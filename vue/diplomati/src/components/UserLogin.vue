@@ -42,7 +42,11 @@ export default {
 
         if (response.status === 200) {
           localStorage.setItem('token', response.data.token);
-          this.$router.push('/details');
+          if (response.data.verified) {
+            this.$router.push('/profile');
+          } else {
+            this.$router.push('/details');
+          }
         } else {
           alert(response.data.message)
         }

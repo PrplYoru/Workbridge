@@ -5,7 +5,6 @@ use mysql::{params, Pool, serde_json};
 use mysql::serde_json::{json, Value};
 use crate::models::{utils::{UserDetailsD, UserDetailsA}, auth::TokenInfo};
 use jsonwebtoken::{decode, Validation, DecodingKey, Algorithm};
-use jsonwebtoken::errors::Result as JWTResult;
 
 pub async fn get_categories(pool: Data<Pool>) -> impl Responder {
     let mut conn = match pool.get_conn() {

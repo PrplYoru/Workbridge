@@ -4,7 +4,7 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use mysql::prelude::Queryable;
 use mysql::{Pool};
-use handlers::utils::{submit_user_details, get_categories};
+use handlers::utils::{submit_user_details, get_categories, get_user_details};
 use handlers::auth::{login_user, register_user};
 
 mod handlers {
@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
 
     let tables = vec![
         "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60), tipo_utente VARCHAR(1), verified BOOLEAN DEFAULT FALSE)",
-        "CREATE TABLE IF NOT EXISTS diplomati (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY (id_user) REFERENCES users(id), specializzazione VARCHAR(50), indirizzo_studio VARCHAR(50), voto_maturita VARCHAR(3), certificazioni_acquisite VARCHAR(50), esperienze_lavorative VARCHAR(50))",
+        "CREATE TABLE IF NOT EXISTS diplomati (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY (id_user) REFERENCES users(id), nome VARCHAR(50), specializzazione VARCHAR(50), indirizzo_studio VARCHAR(50), voto_maturita VARCHAR(3), certificazioni_acquisite VARCHAR(50), esperienze_lavorative VARCHAR(50))",
         "CREATE TABLE IF NOT EXISTS aziende (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY(id_user) REFERENCES users(id), denominazione_azienda VARCHAR(50), numero_REA VARCHAR(15), codice_fiscale VARCHAR(16), forma_giuridica VARCHAR(50), descrizione_attivita VARCHAR(50), categoria VARCHAR(50), indirizzo VARCHAR(50), contatti VARCHAR(50))",
         "CREATE TABLE IF NOT EXISTS categorie (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), description VARCHAR(255))",
     ];
@@ -69,6 +69,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/login", web::post().to(login_user))
             .route("/api/categories", web::get().to(get_categories))
             .route("/api/details/{token}", web::post().to(submit_user_details))
+            .route("/api/details/{token}", web::get().to(get_user_details))
             .service(Files::new("/", "vue/diplomati/dist").index_file("index.html"))
             .default_service(
                 web::route().to(|| async {

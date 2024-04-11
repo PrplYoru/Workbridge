@@ -4,6 +4,7 @@
       <v-card-title>
         <h2>Dettagli Diplomato</h2>
       </v-card-title>
+      <v-text-field label="Nome" v-model="details.nome" required></v-text-field>
       <v-text-field label="Specializzazione" v-model="details.specializzazione" required></v-text-field>
       <v-text-field label="Indirizzo di Studio" v-model="details.indirizzo_studio" required></v-text-field>
       <v-text-field label="Voto di Maturità" v-model="details.voto_maturita" required></v-text-field>
@@ -38,6 +39,7 @@ export default {
       categories: [],
       user_type: decodedToken.user_type,
       details: {
+        nome: '',
         specializzazione: '',
         indirizzo_studio: '',
         voto_maturita: '',

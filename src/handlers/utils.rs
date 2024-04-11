@@ -1,45 +1,67 @@
-use actix_web::{web, HttpResponse, Responder};
+use crate::models::{
+    auth::TokenInfo,
+    utils::{UserDetailsA, UserDetailsD},
+};
 use actix_web::web::Data;
+use actix_web::{web, HttpResponse, Responder};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mysql::prelude::Queryable;
-use mysql::{params, Pool, serde_json};
 use mysql::serde_json::{json, Value};
-use crate::models::{utils::{UserDetailsD, UserDetailsA}, auth::TokenInfo};
-use jsonwebtoken::{decode, Validation, DecodingKey, Algorithm};
+use mysql::{params, serde_json, Pool};
 
 pub async fn get_categories(pool: Data<Pool>) -> impl Responder {
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore di connessione al database"})),
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore di connessione al database"}))
+        }
     };
 
     let result: Vec<(i32, String, String)> = match conn.query("SELECT * FROM categorie") {
         Ok(result) => result,
-        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore nell'esecuzione della query"}))
+        }
     };
 
     HttpResponse::Ok().json(result)
 }
 
-pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
+pub async fn submit_user_details(
+    details: web::Json<Value>,
+    token: web::Path<String>,
+    pool: Data<Pool>,
+) -> impl Responder {
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore di connessione al database"})),
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore di connessione al database"}))
+        }
     };
 
     let secret = b"@vrs%|fumAjH_N|r}d/W(@/KD!/0F*&),d0$26_R-*gKb=PJF(d,j'wcT&we^[]";
     println!("Token: {}", token);
-    let token_data = decode::<TokenInfo>(&token, &DecodingKey::from_secret(secret), &Validation::new(Algorithm::HS256));
+    let token_data = decode::<TokenInfo>(
+        &token,
+        &DecodingKey::from_secret(secret),
+        &Validation::new(Algorithm::HS256),
+    );
 
     match token_data {
         Ok(data) => {
             let user_type = &data.claims.user_type;
             match user_type.as_str() {
                 "D" => {
-                    let details: UserDetailsD = serde_json::from_value(details.into_inner()).unwrap();
+                    let details: UserDetailsD =
+                        serde_json::from_value(details.into_inner()).unwrap();
                     let result = conn.exec_drop(
-                        r"INSERT INTO diplomati (id_user, specializzazione, indirizzo_studio, voto_maturita, certificazioni_acquisite, esperienze_lavorative) VALUES (:id_user , :specializzazione, :indirizzo_studio, :voto_maturita, :certificazioni_acquisite, :esperienze_lavorative)",
+                        r"INSERT INTO diplomati (id_user, nome, specializzazione, indirizzo_studio, voto_maturita, certificazioni_acquisite, esperienze_lavorative) VALUES (:id_user, :nome, :specializzazione, :indirizzo_studio, :voto_maturita, :certificazioni_acquisite, :esperienze_lavorative)",
                         params! {
                             "id_user" => data.claims.user_id,
+                            "nome" => &details.nome, //
                             "specializzazione" => &details.specializzazione,
                             "indirizzo_studio" => &details.indirizzo_studio,
                             "voto_maturita" => &details.voto_maturita,
@@ -56,15 +78,19 @@ pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<Str
                                 },
                             );
                             match verify_result {
-                                Ok(_) => HttpResponse::Ok().json(json!({"message": "Dettagli inseriti con successo"})),
-                                Err(_) => HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+                                Ok(_) => HttpResponse::Ok()
+                                    .json(json!({"message": "Dettagli inseriti con successo"})),
+                                Err(_) => HttpResponse::InternalServerError()
+                                    .json(json!({"message": "Errore nell'esecuzione della query"})),
                             }
-                        },
-                        Err(_) => HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+                        }
+                        Err(_) => HttpResponse::InternalServerError()
+                            .json(json!({"message": "Errore nell'esecuzione della query"})),
                     }
-                },
+                }
                 "A" => {
-                    let details: UserDetailsA = serde_json::from_value(details.into_inner()).unwrap();
+                    let details: UserDetailsA =
+                        serde_json::from_value(details.into_inner()).unwrap();
                     let result = conn.exec_drop(
                         r"INSERT INTO aziende (id_user, denominazione_azienda, numero_rea, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, indirizzo, contatti) VALUES (:id_user, :denominazione_azienda, :numero_rea, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :indirizzo, :contatti)",
                         params! {
@@ -94,10 +120,129 @@ pub async fn submit_user_details(details: web::Json<Value>, token: web::Path<Str
                         },
                         Err(e) => HttpResponse::InternalServerError().json(json!({"message": format!("Errore nell'esecuzione della query: {}", e.to_string())})),
                     }
-                },
+                }
                 _ => HttpResponse::BadRequest().json(json!({"message": "Tipo utente non valido"})),
             }
-        },
-        Err(e) => HttpResponse::InternalServerError().json(json!({"message": format!("Errore nella decodifica del token: {}", e)})),
+        }
+        Err(e) => HttpResponse::InternalServerError()
+            .json(json!({"message": format!("Errore nella decodifica del token: {}", e)})),
+    }
+}
+
+pub async fn get_user_details(token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
+    let mut conn = match pool.get_conn() {
+        Ok(conn) => conn,
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore di connessione al database"}))
+        }
+    };
+
+    let secret = b"@vrs%|fumAjH_N|r}d/W(@/KD!/0F*&),d0$26_R-*gKb=PJF(d,j'wcT&we^[]";
+    let token_data = decode::<TokenInfo>(
+        &token,
+        &DecodingKey::from_secret(secret),
+        &Validation::new(Algorithm::HS256),
+    );
+
+    match token_data {
+        Ok(data) => {
+            let user_type = &data.claims.user_type;
+            match user_type.as_str() {
+                "D" => {
+                    let result: Vec<(i32, i32, String, String, String, String, String, String)> = match conn
+                        .exec(
+                            r"SELECT * FROM diplomati WHERE id_user = :id_user",
+                            params! {
+                                "id_user" => data.claims.user_id
+                            },
+                        ) {
+                        Ok(result) => result,
+                        Err(_) => {
+                            return HttpResponse::InternalServerError()
+                                .json(json!({"message": "Errore nell'esecuzione della query"}))
+                        }
+                    };
+                    let result_json: serde_json::Value = result
+                        .into_iter()
+                        .map(
+                            |(
+                                 id,
+                                 user_id,
+                                 nome,
+                                 specializzazione,
+                                 indirizzo_studio,
+                                 voto_maturita,
+                                 certificazioni_acquisite,
+                                 esperienze_lavorative,
+                             )| {
+                                json!({
+                                    "id": id,
+                                    "user_id": user_id,
+                                    "nome": nome,
+                                    "specializzazione": specializzazione,
+                                    "indirizzo_studio": indirizzo_studio,
+                                    "voto_maturita": voto_maturita,
+                                    "certificazioni_acquisite": certificazioni_acquisite,
+                                    "esperienze_lavorative": esperienze_lavorative
+                                })
+                            },
+                        )
+                        .next() // Get the first (and only) element
+                        .unwrap_or(json!({})); // If there's no element, return an empty JSON object
+                    HttpResponse::Ok().json(result_json)
+                }
+                "A" => {
+let result: Vec<(i32, i32, String, String, String, String, String, String, String, String,)> = match conn
+                        .exec(
+                            r"SELECT * FROM aziende WHERE id_user = :id_user",
+                            params! {
+                                "id_user" => data.claims.user_id
+                            },
+                        ) {
+                        Ok(result) => result,
+                        Err(_) => {
+                            return HttpResponse::InternalServerError()
+                                .json(json!({"message": "Errore nell'esecuzione della query"}))
+                        }
+                    };
+                    let result_json: serde_json::Value = result
+                        .into_iter()
+                        .map(
+                            |(
+                                 id,
+                                 user_id,
+                                 denominazione_azienda,
+                                 numero_rea,
+                                 codice_fiscale,
+                                 forma_giuridica,
+                                 descrizione_attivita,
+                                 categoria,
+                                 indirizzo,
+                                 contatti,
+                             )| {
+                                json!({
+                                    "id": id,
+                                    "user_id": user_id,
+                                    "denominazione_azienda": denominazione_azienda,
+                                    "numero_rea": numero_rea,
+                                    "codice_fiscale": codice_fiscale,
+                                    "forma_giuridica": forma_giuridica,
+                                    "descrizione_attivita": descrizione_attivita,
+                                    "categoria": categoria,
+                                    "indirizzo": indirizzo,
+                                    "contatti": contatti
+                                })
+                            },
+                        )
+                        .next() // Get the first (and only) element
+                        .unwrap_or(json!({})); // If there's no element, return an empty JSON object
+                    HttpResponse::Ok().json(result_json)
+                }
+                _ => HttpResponse::BadRequest().json(json!({"message": "Tipo utente non valido"})),
+            }
+        }
+        Err(e) => HttpResponse::InternalServerError()
+            .json(json!({"message": format!("Errore nella decodifica del token: {}", e)})),
     }
 }

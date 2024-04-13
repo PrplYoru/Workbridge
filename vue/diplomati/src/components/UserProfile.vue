@@ -12,9 +12,6 @@
           <v-list-item-title>Indirizzo di Studio: {{ details.indirizzo_studio }}</v-list-item-title>
         </v-list-item>
         <v-list-item>
-          <v-list-item-title>Indirizzo di studio: {{ details.indirizzo_studio }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
           <v-list-item-title>Voto di Maturità: {{ details.voto_maturita }}</v-list-item-title>
         </v-list-item>
         <v-list-item>

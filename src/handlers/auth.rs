@@ -28,7 +28,7 @@ pub async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl 
     let select_stmt = r"SELECT email FROM users WHERE email = :email";
     let existing_email: Option<String> = match conn.exec_first(select_stmt, params! {"email" => &info.email}) {
         Ok(email) => email,
-        Err(_) => return HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+        Err(e) => return HttpResponse::InternalServerError().json(json!({"message": format!("Errore nell'esecuzione della query: {}", e.to_string())})),
     };
 
     if existing_email.is_some() {
@@ -51,7 +51,7 @@ pub async fn register_user(info: web::Json<UserInfo>, pool: Data<Pool>) -> impl 
 
     match result {
         Ok(_) => HttpResponse::Ok().json(json!({"message": "Utente registrato con successo"})),
-        Err(_) => HttpResponse::InternalServerError().json(json!({"message": "Errore nell'esecuzione della query"})),
+        Err(e) => HttpResponse::InternalServerError().json(json!({"message": format!("Errore nell'esecuzione della query: {}", e.to_string())})),
     }
 }
 

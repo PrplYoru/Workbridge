@@ -43,6 +43,11 @@ export default {
   methods: {
     async register() {
       try {
+        if (this.tipo_utente === 'Diplomato') {
+          this.tipo_utente = 'D';
+        } else {
+          this.tipo_utente = 'A';
+        }
         const response = await axios.post('http://127.0.0.1:8000/api/register', {
           email: this.email,
           password: this.password,

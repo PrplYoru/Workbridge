@@ -188,8 +188,8 @@ pub async fn get_user_details(token: web::Path<String>, pool: Data<Pool>) -> imp
                                 })
                             },
                         )
-                        .next() // Get the first (and only) element
-                        .unwrap_or(json!({})); // If there's no element, return an empty JSON object
+                        .next()
+                        .unwrap_or(json!({}));
                     HttpResponse::Ok().json(result_json)
                 }
                 "A" => {
@@ -235,8 +235,8 @@ let result: Vec<(i32, i32, String, String, String, String, String, String, Strin
                                 })
                             },
                         )
-                        .next() // Get the first (and only) element
-                        .unwrap_or(json!({})); // If there's no element, return an empty JSON object
+                        .next()
+                        .unwrap_or(json!({}));
                     HttpResponse::Ok().json(result_json)
                 }
                 _ => HttpResponse::BadRequest().json(json!({"message": "Tipo utente non valido"})),

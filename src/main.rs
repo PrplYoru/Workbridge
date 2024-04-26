@@ -4,7 +4,7 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use mysql::prelude::Queryable;
 use mysql::{Pool};
-use handlers::utils::{submit_user_details, get_categories, get_user_details};
+use handlers::utils::{submit_user_details, get_categories, get_user_details, get_all_users};
 use handlers::auth::{login_user, register_user};
 
 mod handlers {
@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/categories", web::get().to(get_categories))
             .route("/api/details/{token}", web::post().to(submit_user_details))
             .route("/api/details/{token}", web::get().to(get_user_details))
+            .route("/api/users/{token}", web::get().to(get_all_users))
             .service(Files::new("/", "vue/diplomati/dist").index_file("index.html"))
             .default_service(
                 web::route().to(|| async {

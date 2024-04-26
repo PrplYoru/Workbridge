@@ -246,3 +246,115 @@ let result: Vec<(i32, i32, String, String, String, String, String, String, Strin
             .json(json!({"message": format!("Errore nella decodifica del token: {}", e)})),
     }
 }
+
+pub async fn get_all_users(token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
+    let mut conn = match pool.get_conn() {
+        Ok(conn) => conn,
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore di connessione al database"}))
+        }
+    };
+
+    let secret = b"@vrs%|fumAjH_N|r}d/W(@/KD!/0F*&),d0$26_R-*gKb=PJF(d,j'wcT&we^[]";
+    let token_data = decode::<TokenInfo>(
+        &token,
+        &DecodingKey::from_secret(secret),
+        &Validation::new(Algorithm::HS256),
+    );
+
+    match token_data {
+        Ok(data) => {
+            let user_type = &data.claims.user_type;
+            match user_type.as_str() {
+                "A" => {
+                    let result: Vec<(i32, i32, String, String, String, String, String, String)> = match conn
+                        .exec(
+                            r"SELECT * FROM diplomati",
+                            (),
+                        ) {
+                        Ok(result) => result,
+                        Err(_) => {
+                            return HttpResponse::InternalServerError()
+                                .json(json!({"message": "Errore nell'esecuzione della query"}))
+                        }
+                    };
+                    let result_json: serde_json::Value = result
+                        .into_iter()
+                        .map(
+                            |(
+                                 id,
+                                 user_id,
+                                 nome,
+                                 specializzazione,
+                                 indirizzo_studio,
+                                 voto_maturita,
+                                 certificazioni_acquisite,
+                                 esperienze_lavorative,
+                             )| {
+                                json!({
+                                    "id": id,
+                                    "user_id": user_id,
+                                    "nome": nome,
+                                    "specializzazione": specializzazione,
+                                    "indirizzo_studio": indirizzo_studio,
+                                    "voto_maturita": voto_maturita,
+                                    "certificazioni_acquisite": certificazioni_acquisite,
+                                    "esperienze_lavorative": esperienze_lavorative
+                                })
+                            },
+                        )
+                        .collect();
+                    HttpResponse::Ok().json(result_json)
+                }
+                "D" => {
+                    let result: Vec<(i32, i32, String, String, String, String, String, String, String, String, )> = match conn
+                        .exec(
+                            r"SELECT * FROM aziende",
+                            (),
+                        ) {
+                        Ok(result) => result,
+                        Err(_) => {
+                            return HttpResponse::InternalServerError()
+                                .json(json!({"message": "Errore nell'esecuzione della query"}))
+                        }
+                    };
+                    let result_json: serde_json::Value = result
+                        .into_iter()
+                        .map(
+                            |(
+                                 id,
+                                 user_id,
+                                 denominazione_azienda,
+                                 numero_rea,
+                                 codice_fiscale,
+                                 forma_giuridica,
+                                 descrizione_attivita,
+                                 categoria,
+                                 indirizzo,
+                                 contatti,
+                             )| {
+                                json!({
+                                    "id": id,
+                                    "user_id": user_id,
+                                    "denominazione_azienda": denominazione_azienda,
+                                    "numero_rea": numero_rea,
+                                    "codice_fiscale": codice_fiscale,
+                                    "forma_giuridica": forma_giuridica,
+                                    "descrizione_attivita": descrizione_attivita,
+                                    "categoria": categoria,
+                                    "indirizzo": indirizzo,
+                                    "contatti": contatti
+                                })
+                            },
+                        )
+                        .collect();
+                    HttpResponse::Ok().json(result_json)
+                }
+                _ => HttpResponse::BadRequest().json(json!({"message": "Tipo utente non valido"})),
+            }
+        }
+        Err(e) => HttpResponse::InternalServerError()
+            .json(json!({"message": format!("Errore nella decodifica del token: {}", e)})),
+    }
+}

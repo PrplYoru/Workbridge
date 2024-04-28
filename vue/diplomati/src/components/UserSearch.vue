@@ -120,14 +120,10 @@ export default {
 .user-search .v-card {
   margin-bottom: 15px;
   cursor: pointer;
-  box-shadow: none; /* remove default shadow */
+  box-shadow: none;
   border: 1px solid #ddd;
   border-radius: 4px;
   transition: all 0.3s ease;
-}
-
-.user-search .v-card:hover {
-  border-color: #999;
 }
 
 .user-search .v-card-title {
@@ -148,4 +144,11 @@ export default {
 .user-search .v-list-item:last-child {
   border-bottom: none;
 }
+
+.v-col .v-card .v-card-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  background: rgba(153, 153, 153, 0.75);
+}
+
 </style>

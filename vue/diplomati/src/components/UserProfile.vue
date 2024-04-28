@@ -1,63 +1,32 @@
 <template>
   <div class="user-profile">
-    <v-card v-if="user_type === 'D'">
-      <v-card-title>
-        <h2>Ciao, {{ details.nome }}</h2>
-      </v-card-title>
-      <v-list>
-        <v-list-item>
-          <v-list-item-title>Specializzazione: {{ details.specializzazione }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Indirizzo di Studio: {{ details.indirizzo_studio }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Voto di Maturità: {{ details.voto_maturita }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Certificazioni Acquisite: {{ details.certificazioni_acquisite }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Esperienze Lavorative: {{ details.esperienze_lavorative }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card>
-    <v-card v-else-if="user_type === 'A'">
-      <v-card-title>
-        <h2>Dettagli dell'azienda {{ details.denominazione_azienda }}</h2>
-      </v-card-title>
-      <v-list>
-        <v-list-item>
-          <v-list-item-title>Denominazione Azienda: {{ details.denominazione_azienda }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Numero REA: {{ details.numero_rea }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Codice Fiscale: {{ details.codice_fiscale }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Forma Giuridica: {{ details.forma_giuridica }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Descrizione Attività: {{ details.descrizione_attivita }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Categoria: {{ details.categoria }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Indirizzo: {{ details.indirizzo }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Contatti: {{ details.contatti }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <div class="profile-card" v-if="user_type === 'D'">
+      <div class="card-header">
+        <h2>Hello, {{ details.nome }}</h2>
+      </div>
+      <div class="card-body">
+        <div class="profile-detail" v-for="(value, key) in details" :key="key">
+          <h3>{{ key }}: </h3>
+          <p>{{ value }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="profile-card" v-else-if="user_type === 'A'">
+      <div class="card-header">
+        <h2>Company Details: {{ details.denominazione_azienda }}</h2>
+      </div>
+      <div class="card-body">
+        <div class="profile-detail" v-for="(value, key) in details" :key="key">
+          <h3>{{ key }}: </h3>
+          <p>{{ value }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import axios from 'axios';
 
 export default {
@@ -87,65 +56,65 @@ export default {
 </script>
 
 <style scoped>
-.user-profile {
-  max-width: 500px;
-  margin: auto;
-  font-family: Arial, sans-serif;
-  color: #333;
-  animation: fadeIn 1s ease-in;
-}
-
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {opacity: 0;}
+  100% {opacity: 1;}
 }
 
-.v-card {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  border-radius: 5px;
-  background-color: #f0f0f0;
-  margin-bottom: 20px;
-  animation: slideIn 1s ease-in;
+.user-profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(to right, #f5f5f5, #e0e0e0);
 }
 
-@keyframes slideIn {
-  0% { transform: translateY(-50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+.profile-card {
+  width: 80%;
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: fadeIn 1s;
 }
 
-.v-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-  transform: scale(1.02);
-}
-
-.v-card-title {
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+.card-header {
   background-color: #007BFF;
   color: #fff;
-}
-
-.v-card-title h2 {
-  margin: 0;
+  padding: 20px;
   font-size: 1.5em;
 }
 
-.v-list {
-  padding: 16px;
+.card-body {
+  padding: 20px;
 }
 
-.v-list-item {
-  padding: 10px 0;
+.profile-detail {
+  display: flex;
+  justify-content: space-between;
   border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.3s ease;
+  padding: 15px 0;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.v-list-item:hover {
+.profile-detail:hover {
   background-color: #f0f0f0;
+  transform: scale(1.02);
 }
 
-.v-list-item:last-child {
+.profile-detail:last-child {
   border-bottom: none;
+}
+
+.profile-detail h3 {
+  font-weight: bold;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.profile-detail p {
+  color: #666;
+  font-size: 1em;
 }
 </style>

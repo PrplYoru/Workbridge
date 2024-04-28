@@ -68,13 +68,13 @@
         }
       }
     },
-    "/api/details/{token}": {
+    "/api/details": {
       "post": {
         "summary": "Submit user details",
         "parameters": [
           {
-            "name": "token",
-            "in": "path",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
             "schema": {
               "type": "string"
@@ -97,8 +97,8 @@
         "summary": "Get user details",
         "parameters": [
           {
-            "name": "token",
-            "in": "path",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
             "schema": {
               "type": "string"
@@ -118,13 +118,13 @@
         }
       }
     },
-    "/api/users/{token}": {
+    "/api/users": {
       "get": {
         "summary": "Get all users",
         "parameters": [
           {
-            "name": "token",
-            "in": "path",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
             "schema": {
               "type": "string"

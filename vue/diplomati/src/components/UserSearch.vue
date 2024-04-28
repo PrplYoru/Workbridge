@@ -90,7 +90,11 @@ export default {
     async fetchUsers() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`/api/users/${token}`);
+        const response = await axios.get(`/api/users`, {
+          headers: {
+            Authorization: `${token}`
+          }
+        });
         this.users = response.data;
       } catch (error) {
         console.error(error);

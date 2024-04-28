@@ -73,7 +73,11 @@ export default {
     this.user_type = decodedToken.user_type;
 
     try {
-      const response = await axios.get(`/api/details/${token}`);
+      const response = await axios.get(`/api/details`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       this.details = response.data;
     } catch (error) {
       console.error(error);

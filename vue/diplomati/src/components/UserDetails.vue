@@ -68,7 +68,11 @@ export default {
     async submitDetails() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post(`/api/details/${token}`, this.details);
+        const response = await axios.post(`/api/details`, this.details, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
         if (response.status === 200) {
           this.$router.push('/profile');
         } else {

@@ -10,4 +10,32 @@
         <description>Created after removal of "About API Diplomati" from API Diplomati</description>
         <accepts>starter-topic.html</accepts>
     </rule>
+    <rule id="226800f">
+        <description>Created after removal of "Get all users" from API Diplomati</description>
+        <accepts>Get_all_users.html</accepts>
+    </rule>
+    <rule id="5778d84b">
+        <description>Created after removal of "Submit user details" from API Diplomati</description>
+        <accepts>Submit_user_details.html</accepts>
+    </rule>
+    <rule id="645a4ebe">
+        <description>Created after removal of "Get user details" from API Diplomati</description>
+        <accepts>Get_user_details.html</accepts>
+    </rule>
+    <rule id="46506276">
+        <description>Created after removal of "Get categories" from API Diplomati</description>
+        <accepts>Get_categories.html</accepts>
+    </rule>
+    <rule id="1e7e3d07">
+        <description>Created after removal of "Login a user" from API Diplomati</description>
+        <accepts>Login_a_user.html</accepts>
+    </rule>
+    <rule id="4fbe4da3">
+        <description>Created after removal of "Register a user" from API Diplomati</description>
+        <accepts>Register_a_user.html</accepts>
+    </rule>
+    <rule id="47c61c8c">
+        <description>Created after removal of "API Reference" from API Diplomati</description>
+        <accepts>API_Reference.html</accepts>
+    </rule>
 </rules>

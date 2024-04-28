@@ -68,9 +68,9 @@ async fn main() -> std::io::Result<()> {
             .route("/api/register", web::post().to(register_user))
             .route("/api/login", web::post().to(login_user))
             .route("/api/categories", web::get().to(get_categories))
-            .route("/api/details/{token}", web::post().to(submit_user_details))
-            .route("/api/details/{token}", web::get().to(get_user_details))
-            .route("/api/users/{token}", web::get().to(get_all_users))
+            .route("/api/details", web::post().to(submit_user_details))
+            .route("/api/details", web::get().to(get_user_details))
+            .route("/api/users", web::get().to(get_all_users))
             .service(Files::new("/", "vue/diplomati/dist").index_file("index.html"))
             .default_service(
                 web::route().to(|| async {

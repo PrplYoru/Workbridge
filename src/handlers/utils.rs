@@ -3,7 +3,7 @@ use crate::models::{
     utils::{UserDetailsA, UserDetailsD},
 };
 use actix_web::web::Data;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder, HttpRequest};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mysql::prelude::Queryable;
 use mysql::serde_json::{json, Value};
@@ -30,10 +30,11 @@ pub async fn get_categories(pool: Data<Pool>) -> impl Responder {
 }
 
 pub async fn submit_user_details(
+    req: HttpRequest,
     details: web::Json<Value>,
-    token: web::Path<String>,
     pool: Data<Pool>,
 ) -> impl Responder {
+    let token = req.headers().get("Authorization").unwrap().to_str().unwrap();
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,
         Err(_) => {
@@ -129,7 +130,8 @@ pub async fn submit_user_details(
     }
 }
 
-pub async fn get_user_details(token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
+pub async fn get_user_details(req: HttpRequest, pool: Data<Pool>) -> impl Responder {
+    let token = req.headers().get("Authorization").unwrap().to_str().unwrap();
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,
         Err(_) => {
@@ -247,7 +249,8 @@ let result: Vec<(i32, i32, String, String, String, String, String, String, Strin
     }
 }
 
-pub async fn get_all_users(token: web::Path<String>, pool: Data<Pool>) -> impl Responder {
+pub async fn get_all_users(req: HttpRequest, pool: Data<Pool>) -> impl Responder {
+    let token = req.headers().get("Authorization").unwrap().to_str().unwrap();
     let mut conn = match pool.get_conn() {
         Ok(conn) => conn,
         Err(_) => {

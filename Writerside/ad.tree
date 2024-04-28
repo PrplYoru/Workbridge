@@ -4,14 +4,7 @@
 
 <instance-profile id="ad"
                  name="API Diplomati"
-                 start-page="API_Reference.topic">
+                  start-page="API_Reference.md">
 
-    <toc-element topic="API_Reference.topic">
-        <toc-element topic="Get_all_users.topic"/>
-        <toc-element topic="Submit_user_details.topic"/>
-        <toc-element topic="Get_user_details.topic"/>
-        <toc-element topic="Get_categories.topic"/>
-        <toc-element topic="Login_a_user.topic"/>
-        <toc-element topic="Register_a_user.topic"/>
-    </toc-element>
+    <toc-element topic="API_Reference.md"/>
 </instance-profile>

@@ -44,9 +44,10 @@ async fn main() -> std::io::Result<()> {
     let tables = vec![
         "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60), tipo_utente VARCHAR(1), verified BOOLEAN DEFAULT FALSE)",
         "CREATE TABLE IF NOT EXISTS diplomati (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY (id_user) REFERENCES users(id), nome VARCHAR(50), specializzazione VARCHAR(50), indirizzo_studio VARCHAR(50), voto_maturita VARCHAR(3), certificazioni_acquisite VARCHAR(50), esperienze_lavorative VARCHAR(50))",
-        "CREATE TABLE IF NOT EXISTS aziende (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY(id_user) REFERENCES users(id), denominazione_azienda VARCHAR(50), numero_REA VARCHAR(15), codice_fiscale VARCHAR(16), forma_giuridica VARCHAR(50), descrizione_attivita VARCHAR(50), categoria VARCHAR(50), provincia CHAR(2), FOREIGN KEY(provincia) REFERENCES province(id), indirizzo VARCHAR(50), contatti VARCHAR(50))",
-        "CREATE TABLE IF NOT EXISTS categorie (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), description VARCHAR(255))",
         "CREATE TABLE IF NOT EXISTS province (id CHAR(2) PRIMARY KEY, name VARCHAR(60))",
+        "CREATE TABLE IF NOT EXISTS aziende (id INT AUTO_INCREMENT PRIMARY KEY, id_user INT, FOREIGN KEY(id_user) REFERENCES users(id), denominazione_azienda VARCHAR(50), numero_REA VARCHAR(15), codice_fiscale VARCHAR(16), forma_giuridica VARCHAR(50), descrizione_attivita VARCHAR(50), categoria VARCHAR(50), provincia VARCHAR(2), indirizzo VARCHAR(50), contatti VARCHAR(50))",
+        "CREATE TABLE IF NOT EXISTS categorie (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), description VARCHAR(255))",
+        "CREATE TABLE IF NOT EXISTS cvs (id INT AUTO_INCREMENT PRIMARY KEY, file_path VARCHAR(255) NOT NULL, diplomato_user_id INT, azienda_user_id INT, FOREIGN KEY (diplomato_user_id) REFERENCES users(id), FOREIGN KEY (azienda_user_id) REFERENCES users(id))",
     ];
 
     for table in tables {

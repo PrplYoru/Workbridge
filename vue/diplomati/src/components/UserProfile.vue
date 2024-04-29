@@ -2,7 +2,7 @@
   <div class="user-profile">
     <div class="profile-card" v-if="user_type === 'D'">
       <div class="card-header">
-        <h2>Hello, {{ details.nome }}</h2>
+        <h2>Ciao, {{ details.nome }}</h2>
       </div>
       <div class="card-body">
         <div class="profile-detail" v-for="(value, key) in details" :key="key">
@@ -13,7 +13,7 @@
     </div>
     <div class="profile-card" v-else-if="user_type === 'A'">
       <div class="card-header">
-        <h2>Company Details: {{ details.denominazione_azienda }}</h2>
+        <h2>Dettagli azienda: {{ details.denominazione_azienda }}</h2>
       </div>
       <div class="card-body">
         <div class="profile-detail" v-for="(value, key) in details" :key="key">

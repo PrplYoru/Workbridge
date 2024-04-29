@@ -29,6 +29,26 @@ pub async fn get_categories(pool: Data<Pool>) -> impl Responder {
     HttpResponse::Ok().json(result)
 }
 
+pub async fn get_provinces(pool: Data<Pool>) -> impl Responder {
+    let mut conn = match pool.get_conn() {
+        Ok(conn) => conn,
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore di connessione al database"}))
+        }
+    };
+
+    let result: Vec<(String, String)> = match conn.query("SELECT * FROM province") {
+        Ok(result) => result,
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .json(json!({"message": "Errore nell'esecuzione della query"}))
+        }
+    };
+
+    HttpResponse::Ok().json(result)
+}
+
 pub async fn submit_user_details(
     req: HttpRequest,
     details: web::Json<Value>,
@@ -90,10 +110,32 @@ pub async fn submit_user_details(
                     }
                 }
                 "A" => {
-                    let details: UserDetailsA =
+                    let mut details: UserDetailsA =
                         serde_json::from_value(details.into_inner()).unwrap();
+
+                    let province_id: Result<Option<(String,)>, _> = conn.exec_first(
+                        "SELECT id FROM province WHERE name = :name",
+                        params! {
+                            "name" => &details.provincia
+                        },
+                    );
+
+                    match province_id {
+                        Ok(Some((id,))) => {
+                            // Replace the province name with the province ID
+                            details.provincia = id.to_string();
+                        }
+                        Ok(None) => {
+                            return HttpResponse::BadRequest().json(json!({"message": "Provincia non valida"}));
+                        }
+                        Err(_) => {
+                            return HttpResponse::InternalServerError()
+                                .json(json!({"message": "Errore nell'esecuzione della query"}));
+                        }
+                    }
+
                     let result = conn.exec_drop(
-                        r"INSERT INTO aziende (id_user, denominazione_azienda, numero_rea, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, indirizzo, contatti) VALUES (:id_user, :denominazione_azienda, :numero_rea, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :indirizzo, :contatti)",
+                        r"INSERT INTO aziende (id_user, denominazione_azienda, numero_rea, codice_fiscale, forma_giuridica, descrizione_attivita, categoria, provincia, indirizzo, contatti) VALUES (:id_user, :denominazione_azienda, :numero_rea, :codice_fiscale, :forma_giuridica, :descrizione_attivita, :categoria, :provincia, :indirizzo, :contatti)",
                         params! {
                             "id_user" => data.claims.user_id,
                             "denominazione_azienda" => &details.denominazione_azienda,
@@ -102,6 +144,7 @@ pub async fn submit_user_details(
                             "forma_giuridica" => &details.forma_giuridica,
                             "descrizione_attivita" => &details.descrizione_attivita,
                             "categoria" => &details.categoria,
+                            "provincia" => &details.provincia,
                             "indirizzo" => &details.indirizzo,
                             "contatti" => &details.contatti
                         },
@@ -195,7 +238,7 @@ pub async fn get_user_details(req: HttpRequest, pool: Data<Pool>) -> impl Respon
                     HttpResponse::Ok().json(result_json)
                 }
                 "A" => {
-let result: Vec<(i32, i32, String, String, String, String, String, String, String, String,)> = match conn
+let result: Vec<(i32, i32, String, String, String, String, String, String, String, String, String,)> = match conn
                         .exec(
                             r"SELECT * FROM aziende WHERE id_user = :id_user",
                             params! {
@@ -220,6 +263,7 @@ let result: Vec<(i32, i32, String, String, String, String, String, String, Strin
                                  forma_giuridica,
                                  descrizione_attivita,
                                  categoria,
+                                 provincia,
                                  indirizzo,
                                  contatti,
                              )| {
@@ -232,6 +276,7 @@ let result: Vec<(i32, i32, String, String, String, String, String, String, Strin
                                     "forma_giuridica": forma_giuridica,
                                     "descrizione_attivita": descrizione_attivita,
                                     "categoria": categoria,
+                                    "provincia": provincia,
                                     "indirizzo": indirizzo,
                                     "contatti": contatti
                                 })
@@ -311,7 +356,7 @@ pub async fn get_all_users(req: HttpRequest, pool: Data<Pool>) -> impl Responder
                     HttpResponse::Ok().json(result_json)
                 }
                 "D" => {
-                    let result: Vec<(i32, i32, String, String, String, String, String, String, String, String, )> = match conn
+                    let result: Vec<(i32, i32, String, String, String, String, String, String, String, String, String, )> = match conn
                         .exec(
                             r"SELECT * FROM aziende",
                             (),
@@ -334,6 +379,7 @@ pub async fn get_all_users(req: HttpRequest, pool: Data<Pool>) -> impl Responder
                                  forma_giuridica,
                                  descrizione_attivita,
                                  categoria,
+                                 provincia,
                                  indirizzo,
                                  contatti,
                              )| {
@@ -346,6 +392,7 @@ pub async fn get_all_users(req: HttpRequest, pool: Data<Pool>) -> impl Responder
                                     "forma_giuridica": forma_giuridica,
                                     "descrizione_attivita": descrizione_attivita,
                                     "categoria": categoria,
+                                    "provincia": provincia,
                                     "indirizzo": indirizzo,
                                     "contatti": contatti
                                 })

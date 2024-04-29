@@ -38,6 +38,9 @@
             <v-list-item-title>Numero REA: {{ selectedUser.numero_rea }}</v-list-item-title>
           </v-list-item>
           <v-list-item v-if="user_type === 'D'">
+            <v-list-item-title>Provincia: {{ selectedUser.provincia }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="user_type === 'D'">
             <v-list-item-title>Codice Fiscale: {{ selectedUser.codice_fiscale }}</v-list-item-title>
           </v-list-item>
           <v-list-item v-if="user_type === 'D'">

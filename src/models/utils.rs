@@ -18,6 +18,7 @@ pub struct UserDetailsA {
     pub forma_giuridica: String,
     pub descrizione_attivita: String,
     pub categoria: String,
+    pub provincia: String,
     pub indirizzo: String,
     pub contatti: String,
 }

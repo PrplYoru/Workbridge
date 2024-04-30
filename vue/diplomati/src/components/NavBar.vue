@@ -1,25 +1,33 @@
 <template>
-  <v-app-bar app style="background-color: #007BFF;" dark>
+  <v-app-bar app dark>
     <v-toolbar-title class="text-h5">Diplomatiziati</v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-btn to="/profile" class="nav-button">
-      <v-icon left class="nav-icon">mdi-account</v-icon>
-      Profile
-    </v-btn>
-    <v-btn to="/search" class="nav-button">
-      <v-icon left class="nav-icon">mdi-magnify</v-icon>
-      Search
+    <v-btn v-for="item in items" :key="item.title" :to="item.to" class="nav-button">
+      <v-icon left class="nav-icon">{{ item.icon }}</v-icon>
+      {{ item.title }}
     </v-btn>
   </v-app-bar>
 </template>
 
 <script>
 export default {
-  name: 'NavBar'
-}
+  name: 'NavBar',
+  data() {
+    return {
+      items: [
+        { title: 'Profile', to: '/profile', icon: 'mdi-account' },
+        { title: 'Search', to: '/search', icon: 'mdi-magnify' },
+      ],
+    };
+  },
+};
 </script>
 
 <style scoped>
+.v-app-bar {
+  background-color: #007BFF;
+}
+
 .v-btn {
   color: white;
   font-weight: bold;

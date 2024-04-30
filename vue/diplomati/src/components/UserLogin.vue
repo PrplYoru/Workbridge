@@ -3,12 +3,12 @@
     <v-card-title>
       <h2 class="form-title">Login</h2>
     </v-card-title>
-    <v-form @submit.prevent="login" class="form" ref="form">
+    <v-form @submit.prevent="login" class="form" ref="form" v-model="validForm">
       <v-text-field
           label="Email"
           type="email"
           v-model="email"
-          :rules="[rules.required, rules.email]"
+          :rules="emailRules"
           required
           class="form-field"
           placeholder="Enter your email"
@@ -17,12 +17,12 @@
           label="Password"
           type="password"
           v-model="password"
-          :rules="[rules.required]"
+          :rules="passwordRules"
           required
           class="form-field"
           placeholder="Enter your password"
       ></v-text-field>
-      <v-btn type="submit" color="primary" class="mr-4 form-button" @click="validate">Login</v-btn>
+      <v-btn type="submit" color="primary" class="mr-4 form-button" :disabled="!validForm">Login</v-btn>
       <v-btn type="button" color="secondary" class="form-button" @click="register">Registrati</v-btn>
     </v-form>
   </v-card>
@@ -36,23 +36,24 @@ export default {
     return {
       email: '',
       password: '',
-      rules: {
-        required: value => !!value || 'Required.',
-        email: value => /.+@.+\..+/.test(value) || 'Invalid email.',
-      },
+      validForm: false,
     };
+  },
+  computed: {
+    emailRules() {
+      return [
+        v => !!v || 'Email is required',
+        v => /.+@.+\..+/.test(v) || 'Invalid email',
+      ];
+    },
+    passwordRules() {
+      return [
+        v => !!v || 'Password is required',
+      ];
+    },
   },
   methods: {
     async login() {
-      if (!this.email || !this.password) {
-        alert('Inserisci tutti i campi');
-        return;
-      }
-      if (!/.+@.+\..+/.test(this.email)) {
-        alert('Email non valida');
-        return;
-      }
-
       try {
         const response = await axios.post('http://127.0.0.1:8000/api/login', {
           email: this.email,
@@ -67,37 +68,41 @@ export default {
             this.$router.push('/details');
           }
         } else {
-          alert(response.data.message)
+          alert(response.data.message);
         }
       } catch (error) {
-        alert(error.response.data.message)
+        alert(error.response.data.message);
       }
     },
     register() {
       this.$router.push('/register');
-    },
-    validate() {
-      this.$refs.form.validate();
     },
   },
 };
 </script>
 
 <style scoped>
+:root {
+  --primary-color: #007BFF;
+  --secondary-color: #f5f5f5;
+  --font-color: #333;
+  --font-family: 'Roboto', sans-serif;
+}
+
 .form-card {
   max-width: 90%;
   margin: auto 33%;
   padding: 20px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  background-color: #f5f5f5;
+  background-color: var(--secondary-color);
 }
 
 .form-title {
   font-size: 24px;
   font-weight: bold;
-  color: #333;
-  font-family: 'Roboto', sans-serif;
+  color: var(--font-color);
+  font-family: var(--font-family),serif;
 }
 
 .form {
@@ -113,7 +118,7 @@ export default {
 
 .form-field:focus {
   transform: scale(1.05);
-  border-color: #007BFF;
+  border-color: var(--primary-color);
 }
 
 .form-button {
@@ -125,7 +130,7 @@ export default {
 
 .form-button:hover {
   transform: scale(1.05);
-  background-color: #007BFF;
+  background-color: var(--primary-color);
   color: #fff;
 }
 </style>

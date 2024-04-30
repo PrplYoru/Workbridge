@@ -2,10 +2,10 @@
   <div class="user-profile">
     <div class="profile-card" v-if="user_type === 'D'">
       <div class="card-header">
-        <h2>Ciao, {{ details.nome }}</h2>
+        <h2>Ciao, {{ filteredDetails.nome }}</h2>
       </div>
       <div class="card-body">
-        <div class="profile-detail" v-for="(value, key) in details" :key="key">
+        <div class="profile-detail" v-for="(value, key) in filteredDetails" :key="key">
           <h3>{{ key }}: </h3>
           <p>{{ value }}</p>
         </div>
@@ -13,10 +13,10 @@
     </div>
     <div class="profile-card" v-else-if="user_type === 'A'">
       <div class="card-header">
-        <h2>Dettagli azienda: {{ details.denominazione_azienda }}</h2>
+        <h2>Dettagli azienda: {{ filteredDetails.denominazione_azienda }}</h2>
       </div>
       <div class="card-body">
-        <div class="profile-detail" v-for="(value, key) in details" :key="key">
+        <div class="profile-detail" v-for="(value, key) in filteredDetails" :key="key">
           <h3>{{ key }}: </h3>
           <p>{{ value }}</p>
         </div>
@@ -52,6 +52,17 @@ export default {
       console.error(error);
     }
   },
+  computed: {
+    filteredDetails() {
+      const filtered = {};
+      for (const key in this.details) {
+        if (key !== 'id' && key !== 'user_id') {
+          filtered[key] = this.details[key];
+        }
+      }
+      return filtered;
+    }
+  }
 };
 </script>
 

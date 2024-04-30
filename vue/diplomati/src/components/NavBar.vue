@@ -1,6 +1,6 @@
 <template>
   <v-app-bar app dark>
-    <v-toolbar-title class="text-h5">Diplomatiziati</v-toolbar-title>
+    <v-toolbar-title class="text-h5">Workbridge</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn v-for="item in items" :key="item.title" :to="item.to" class="nav-button">
       <v-icon left class="nav-icon">{{ item.icon }}</v-icon>
@@ -15,8 +15,8 @@ export default {
   data() {
     return {
       items: [
-        { title: 'Profile', to: '/profile', icon: 'mdi-account' },
-        { title: 'Search', to: '/search', icon: 'mdi-magnify' },
+        { title: 'Profilo', to: '/profile', icon: 'mdi-account' },
+        { title: 'Ricerca', to: '/search', icon: 'mdi-magnify' },
       ],
     };
   },

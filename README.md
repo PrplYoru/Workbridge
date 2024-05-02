@@ -36,7 +36,7 @@ Follow these steps to get Workbridge up and running:
 
 1. Clone the repository:
 ```bash
-$ git clone https://github.com/PrplYoru/diplomati_vue.git
+$ git clone https://github.com/PrplYoru/Workbridge.git
 ```
 2. Navigate into the project directory:
 ``` bash
